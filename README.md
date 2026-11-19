@@ -1,10 +1,10 @@
-# RetroAgent V9
+# RetroAgent 
 
 RetroAgent is a LangGraph controller for multistep retrosynthesis. Given a target SMILES, it starts with an empty search graph, expands candidate reactions through a resident prediction service, and checks exact stock membership and reaction support. A second phase uses the first phase's observations to repair unresolved branches and improve the route portfolio within a shared budget. The CLI exports candidate routes, metrics, budget usage, and a per-case audit.
 
 ## 100-target benchmark
 
-| Metric | RetroAgent V9 | ReTRACE-style | RetrOrchestrator-style | LARC-style | RetroPlanner-style | DeepRetro-style |
+| Metric | RetroAgent  | ReTRACE-style | RetrOrchestrator-style | LARC-style | RetroPlanner-style | DeepRetro-style |
 |---|---:|---:|---:|---:|---:|---:|
 | Stock closure | 99% | 95% | 98% | 88% | 81% | 87% |
 | Strict closure | 80% | 71% | 67% | 60% | 70% | 59% |
@@ -17,7 +17,7 @@ RetroAgent is a LangGraph controller for multistep retrosynthesis. Given a targe
 | Mean LLM calls per target | 13.38 | 17.57 | 17.01 | 10.50 | 17.10 | 18.00 |
 | Mean search work per target | 10,030.11 | 5,942.98 | 5,850.21 | 6,076.78 | 1,778.09 | 8,046.67 |
 
-The baseline columns represent local adaptations of the five control strategies using shared chemistry services. The 100 targets were used during V9 development. Strict closure checks exact stock, route structure, atom sources, search depth and size limits, and positive ChemCensor (CC) support at every step. The yield proxy multiplies step estimates and is reported only on routes with complete evidence.
+The baseline columns represent local adaptations of the five control strategies using shared chemistry services. The 100 targets were used during  development. Strict closure checks exact stock, route structure, atom sources, search depth and size limits, and positive ChemCensor (CC) support at every step. The yield proxy multiplies step estimates and is reported only on routes with complete evidence.
 
 [Full results](benchmark/RESULTS.md) · [CSV](benchmark/comparison.csv) · [Protocol](benchmark/PROTOCOL.md) · [Audit summary](benchmark/audit-summary.json)
 
