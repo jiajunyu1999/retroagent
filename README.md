@@ -29,24 +29,20 @@ flowchart LR
 
 ## Benchmark
 
-The same 100 targets, chemistry services, and per-target budget ceilings were used for RetroAgent and five local adaptations of published control strategies. The targets were used during method development.
+All methods share the same 100 development targets, chemistry services, and budget ceilings. Baseline rows use local adaptations of the published control strategies.
 
-| Metric | **RetroAgent** | ReTRACE-style | RetrOrchestrator-style | LARC-style | RetroPlanner-style | DeepRetro-style |
-|---|---:|---:|---:|---:|---:|---:|
-| Inventory closure | **99%** | 95% | 98% | 88% | 81% | 87% |
-| Strict closure | **80%** | 71% | 67% | 60% | 70% | 59% |
-| Mean first-route CC across all 100 targets | **2.6918** | 2.3870 | 2.2223 | 2.2117 | 2.2292 | 2.3250 |
-| Mean all-route CC, averaged per target | **2.5164** | 2.2056 | 2.0827 | 1.9953 | 1.9826 | 2.0454 |
-| All-route diversity | 0.4439 | 0.4370 | 0.4944 | 0.5242 | 0.5182 | **0.5328** |
-| Routes with complete yield evidence | 320 | 589 | 611 | 748 | **1,262** | 623 |
-| Mean yield proxy on fully covered routes | 8.04% | 22.08% | 15.76% | 22.93% | 19.05% | **24.89%** |
-| Mean specialist model calls per target | 96 | 96 | 96 | 96 | 96 | 96 |
-| Mean LLM calls per target | 13.38 | 17.57 | 17.01 | 10.50 | 17.10 | 18.00 |
-| Mean search work per target | 10,030.11 | 5,942.98 | 5,850.21 | 6,076.78 | 1,778.09 | 8,046.67 |
+| Method | Stock closure | Strict closure | First-route CC | All-route CC | Diversity |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| **RetroAgent** | **99%** | **80%** | **2.6918** | **2.5164** | 0.4439 |
+| ReTRACE | 95% | 71% | 2.3870 | 2.2056 | 0.4370 |
+| RetroPlanner | 81% | 70% | 2.2292 | 1.9826 | 0.5182 |
+| RetrOrchestrator | 98% | 67% | 2.2223 | 2.0827 | 0.4944 |
+| LARC | 88% | 60% | 2.2117 | 1.9953 | 0.5242 |
+| DeepRetro | 87% | 59% | 2.3250 | 2.0454 | **0.5328** |
 
-Strict closure requires exact inventory closure, a structurally valid route within the depth and size limits, supported atom sources, and positive CC at every step. The yield proxy multiplies estimated step yields across a fully covered route.
+CC and diversity are averaged per target. Strict closure requires exact stock membership at the leaves, valid route structure and atom sources, positive CC at each step, and a route within the depth and size limits.
 
-[Full results](benchmark/RESULTS.md) · [CSV](benchmark/comparison.csv) · [Protocol](benchmark/PROTOCOL.md) · [Audit summary](benchmark/audit-summary.json)
+[Full results, including yield and search cost](benchmark/RESULTS.md) · [CSV](benchmark/comparison.csv) · [Protocol](benchmark/PROTOCOL.md) · [Audit summary](benchmark/audit-summary.json)
 
 ## Run RetroAgent
 
