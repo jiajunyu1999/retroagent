@@ -1,0 +1,4 @@
+langgraph==1.2.22
+numpy==1.26.4
+rdkit==2025.9.6
+scipy==1.17.1
