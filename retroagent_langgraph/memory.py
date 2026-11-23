@@ -19,6 +19,8 @@ class EpisodeMemory:
         self.protected={};self.centers={};self.tool_stats=defaultdict(Counter)
         self.positive_centers=defaultdict(set)
         self.decisions=[]
+        self.skill_cards=()
+        self.skill_text=''
 
     def family(self,step,scorer):
         rxn='.'.join(step['reactants'])+'>>'+step['product']

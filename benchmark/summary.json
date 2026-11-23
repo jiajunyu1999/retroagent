@@ -1,0 +1,56 @@
+{
+  "retroagent": {
+    "cases": 100,
+    "completed": 100,
+    "failed": 0,
+    "stock_closed": 99,
+    "strict_closed": 82,
+    "mean_first_cc": 2.73488073038073,
+    "mean_all_routes_cc": 2.5610542214729715,
+    "diversity": 0.43929209266075686,
+    "mean_routes": 20.0,
+    "mean_stock_routes": 19.63,
+    "mean_strict_routes": 15.98,
+    "complete_yield_routes": 203,
+    "complete_yield_mean_pct": 9.169696384831651,
+    "costs": {
+      "native_calls": 9600,
+      "llm_calls": 1356,
+      "evidence_calls": 8486,
+      "exact_queries": 5914,
+      "material_queries": 2397,
+      "support_queries": 175,
+      "search_work": 1012400,
+      "llm_input_tokens": 30095762,
+      "llm_output_tokens": 2191680,
+      "elapsed_seconds": 44169.330048877746
+    },
+    "audits_passed": 100,
+    "llm_failed": 0
+  },
+  "analysis": {
+    "transitions": [
+      [
+        1,
+        4,
+        1
+      ],
+      [
+        0,
+        13,
+        9
+      ],
+      [
+        0,
+        0,
+        72
+      ]
+    ],
+    "mean_cc_phase1": 2.449301587301587,
+    "mean_cc_final": 2.734880730380731,
+    "rescued": 10,
+    "new_split": 9
+  },
+  "memory_waves": 10,
+  "initial_memory": "empty"
+}

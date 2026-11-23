@@ -2,51 +2,58 @@
 
 **Recursive self-improvement for multistep retrosynthesis**
 
-RetroAgent plans synthesis routes from a target SMILES. It uses **recursive self-improvement (RSI)** during inference. Each round of search produces evidence about which reactions, intermediates, and tools helped. The agent uses that evidence to decide where to backtrack, which tool to call next, and which promising branches to keep.
+RetroAgent takes a target SMILES and searches for a synthesis route whose starting materials are in stock and whose reactions have positive ChemCensor (CC) support. Specialist models propose reactions. Inventory and CC checks identify the bottleneck. The LLM chooses the backtrack node, model and reaction; the controller executes the repair and checks the resulting route again. Outcome memory updates between batches of ten targets and informs subsequent repair decisions.
 
-## The RSI loop
+<p align="center"><img src="figures/fig1_workflow.png" width="940" alt="RetroAgent workflow: specialist rollout, route analysis, LLM decision and conditional repair"></p>
 
-```mermaid
-flowchart LR
-    Target["Target SMILES"] --> Search["Expand route graph"]
-    Search --> Verify["Check inventory and reaction support"]
-    Verify -->|At stop| Output["Rank and audit routes"]
-    Verify --> Memory["Update episode memory"]
-    Memory --> Repair["Choose backtrack point and tool"]
-    Repair -->|Next round| Search
+## Results
 
-    classDef input fill:#eef2ff,stroke:#6366f1,color:#1e1b4b
-    classDef process fill:#f1f5f9,stroke:#64748b,color:#0f172a
-    classDef feedback fill:#ecfdf5,stroke:#059669,color:#064e3b
-    class Target,Output input
-    class Search,Verify process
-    class Memory,Repair feedback
-```
+On the same 100 targets, RetroAgent reaches **99% inventory closure**, **82% strict closure** and **2.7349 mean first-route CC**. The comparison contains DeepRetro from its author repository and 14 specialized-model baselines.
 
-1. **Search.** Build a graph of candidate reactions using specialist retrosynthesis models and retrieved precedents. Verify exact inventory membership, route structure, atom sources, and per-step ChemCensor (CC) support.
-2. **Reflect and revise.** Record supported branches, missing precursors, failed reaction centers, and tool outcomes in memory scoped to the current target. The LLM uses those observations to choose a repair point and request a different expansion or propose a local change.
-3. **Recheck and rank.** Validate the revised candidates and retain the best route found so far. Both phases share one budget. The first route is ranked by closure tier and CC. For the remaining slots, RetroAgent uses yield coverage and diversity to select among routes close to the best CC in each tier.
+| Method | Inventory closure | Strict closure | First-route CC |
+| :--- | ---: | ---: | ---: |
+| **RetroAgent** | **99%** | **82%** | **2.7349** |
+| DeepRetro | 57% | 16% | 0.8002 |
+| RetroChimera | 73% | 33% | 1.6107 |
+| GLN | 46% | 32% | 1.5349 |
+| LocalRetro | 65% | 31% | 1.5185 |
+| AiZynthFinder | 52% | 28% | 1.6236 |
+| RetroChimeraDeNovo | 75% | 28% | 1.5886 |
+| RetroKNN | 64% | 28% | 1.5506 |
+| RetroChimeraEdit | 56% | 27% | 1.6347 |
+| MHNreact | 38% | 24% | 1.5030 |
+| Graph2Edits | 59% | 23% | 1.4883 |
+| MEGAN | 57% | 16% | 1.4630 |
+| Chemformer | 38% | 16% | 1.4620 |
+| RetroSim | 41% | 16% | 1.1169 |
+| NeuralSym | 21% | 12% | 1.5001 |
+| RingBreaker | 1% | 0% | 0.2433 |
 
-## Benchmark
+<p align="center"><img src="figures/fig2_benchmarks.png" width="940" alt="100-target closure, CC, paired outcomes, diversity and yield comparison"></p>
 
-All methods share the same 100 development targets, chemistry services, and budget ceilings. Baseline rows use local adaptations of the published control strategies.
+[Complete results](benchmark/RESULTS.md) · [Comparison CSV](benchmark/comparison.csv) · [Metric definitions](benchmark/PROTOCOL.md) · [Figure captions](figures/CAPTIONS.md)
 
-| Method | Stock closure | Strict closure | First-route CC | All-route CC | Diversity |
-| :--- | ---: | ---: | ---: | ---: | ---: |
-| **RetroAgent** | **99%** | **80%** | **2.6918** | **2.5164** | 0.4439 |
-| ReTRACE | 95% | 71% | 2.3870 | 2.2056 | 0.4370 |
-| RetroPlanner | 81% | 70% | 2.2292 | 1.9826 | 0.5182 |
-| RetrOrchestrator | 98% | 67% | 2.2223 | 2.0827 | 0.4944 |
-| LARC | 88% | 60% | 2.2117 | 1.9953 | 0.5242 |
-| DeepRetro | 87% | 59% | 2.3250 | 2.0454 | **0.5328** |
+## Two route examples
 
-CC and diversity are averaged per target. Strict closure requires exact stock membership at the leaves, valid route structure and atom sources, positive CC at each step, and a route within the depth and size limits.
+### X404-1764-4001
 
-[Full results, including yield and search cost](benchmark/RESULTS.md) · [CSV](benchmark/comparison.csv) · [Protocol](benchmark/PROTOCOL.md) · [Audit summary](benchmark/audit-summary.json)
+RetroAgent finds a **7-reaction, strictly closed route** with **5 stock leaves** and mean CC **1.8571**. Every selected reaction has positive CC. DeepRetro remains open; none of the 14 specialized models reaches strict closure on this target.
 
-## Run RetroAgent
+![Seven-reaction strict-closure case](examples/X404-1764-4001/case.png)
 
-Install the controller on Linux with Python 3.12.
+[Target SMILES, selected reactions, stock leaves and per-step CC](examples/X404-1764-4001/route.json)
+
+### X404-1765-3286
+
+The first phase has stock closure but contains a CC-zero reaction. Continuation produces an **8-reaction strictly closed route**, with **5 stock leaves**, and increases mean CC from **1.7143 to 2.6250**. DeepRetro remains open; none of the 14 specialized models reaches strict closure on this target.
+
+![Eight-reaction strict-closure case](examples/X404-1765-3286/case.png)
+
+[Target SMILES, selected reactions, stock leaves and per-step CC](examples/X404-1765-3286/route.json)
+
+## Install and run
+
+The controller runs on Linux with Python 3.12. Chemistry models and databases are served separately.
 
 ```bash
 python -m venv .venv
@@ -54,36 +61,54 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-For a first run, connect the two services and use the workflow mode to check the setup.
+Run a molecule with the specialist and CC services:
 
 ```bash
 python -m retroagent_langgraph \
   --smiles 'CCOCC' --id example --out runs/example \
   --service /path/to/native-service --cc-service /path/to/cc-service \
-  --workflow --no-yield
+  --config benchmark/config.json
 ```
 
-In agent mode, the RSI loop requests `gpt-6.1-sol` with medium reasoning effort through the local Codex CLI. Omit `--workflow` to enable LLM calls. The Linux launcher uses Landlock and needs permission to change file ownership and drop to UID 65534. Use `RETROAGENT_CODEX_BIN` and `RETROAGENT_CODEX_AUTH` to specify the local binary and login file if needed.
+Use `--workflow` for search without LLM calls. Agent mode uses the local Codex CLI with **gpt-6.1-sol / medium**. Set `RETROAGENT_CODEX_BIN` and `RETROAGENT_CODEX_AUTH` to your local executable and login file. The isolated Linux launcher uses Landlock and a separate execution UID.
 
-For batch inference, pass `--targets` with a JSON array containing `Structure ID` and `SMILES` fields. Use a new output directory for each run. The run exports the candidate routes, measured budget use, and per-target audit. Pass `--config benchmark/config.json` for the recorded limits and `--blocked-targets-csv` to exclude direct exact retrieval for a full benchmark cohort.
+Run batch inference with memory updates every ten targets:
 
-<details>
-<summary>Services and reference assets</summary>
+```bash
+python scripts/run_memory_batch.py \
+  --targets benchmark/targets.json --config benchmark/config.json \
+  --out runs/memory_batch --workers 8 --llm-concurrency 18 \
+  --service /path/to/native-service --cc-service /path/to/cc-service
+```
 
-The controller connects to authenticated local Unix sockets. Each service directory contains a `ready.json` connection manifest.
+Memory starts empty. Each batch uses the previous batches' outcome counts. Only completed, audited cases update memory; target-specific reaction routes are not copied into its strategy counts. The runner exports each batch's memory snapshot, selected routes, step scores and measured compute. Both search phases share a cap of **96 specialist calls, 18 LLM calls and 12,288 search-work units** per target. At most 20 routes are returned.
 
-- **Chemistry service.** `--service` connects to the [resident tool interface](scripts/resident_function_tools_v1.py), which provides specialist predictions, exact inventory, inventory neighbors, and exact reaction retrieval. The benchmark used LocalRetro, RetroChimeraEdit, AiZynthFinder, Graph2Edits, and RetroChimeraDeNovo.
-- **Reaction scoring.** `--cc-service` connects to the [ChemCensor server](scripts/resident_ram_cc_v86.py). The server needs PyTorch, ChemCensor 1.2.0, the pinned `ChemCensor-DB-U2-1.0.0.sqlite`, and sufficient shared memory. Start it with `python scripts/resident_ram_cc_v86.py --out /path/to/new-cc-service --workers 4`.
-- **Reference assets.** Set `RETROAGENT_ASSETS` to the reference directory or use the default `assets/`. Reaction analog retrieval uses `product_index.sqlite`. Yield reporting uses `train_RC1_contexts.sqlite` and `yield_reference.sqlite` and can be disabled with `--no-yield`.
+## Services and assets
 
-Model weights, stock and reference databases, benchmark targets, and credentials are supplied separately.
+- **Specialist service:** [resident tool interface](scripts/resident_function_tools_v1.py), with LocalRetro, Graph2Edits, AiZynthFinder, RetroChimeraEdit and RetroChimeraDeNovo.
+- **CC service:** [resident ChemCensor server](scripts/resident_ram_cc_v86.py), using ChemCensor 1.2.0 and its pinned reaction-center database.
+- **Reference assets:** inventory, reaction retrieval and yield references are supplied separately. Set `RETROAGENT_ASSETS` to the reference directory. Each running service provides a `ready.json` manifest.
 
-</details>
+Model weights, reference databases and credentials are external runtime dependencies. No credentials are included in this repository.
+
+## Analysis and editable figures
+
+![Continuation analysis](figures/fig3_ablation.png)
+
+Phase-two continuation increases strict closure from **72 to 82 targets** and mean first-route CC from **2.4493 to 2.7349**. The analysis includes paired CC changes, status transitions, measured cost and first-disconnection changes among rescued routes.
+
+[Editable figures 1–4 (PowerPoint)](figures/RetroAgent_figures.pptx) · [Vector figures and captions](figures/)
+
+## Code layout
+
+- `retroagent_langgraph/`: search controller, LLM decisions, episode memory and repair strategy contracts.
+- `clean_harness/`: graph, chemistry validation, route selection and service adapters.
+- `scripts/run_memory_batch.py`: batch inference with online outcome-memory updates.
+- `benchmark/`: configuration, target inputs, aggregate and per-target results.
+- `examples/`: two selected, scored route outputs.
 
 ## Tests
 
-The controller tests use a simulated chemistry backend.
-
 ```bash
-python -m unittest discover -s tests
+python -m unittest discover -s tests -v
 ```

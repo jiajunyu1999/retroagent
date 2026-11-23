@@ -27,6 +27,7 @@ class Config:
     supply_alternatives: int = 4  # One primary + up to4 short supply candidates.
     rule_work: int = 768  # Included in search_work; never extra model calls.
     yield_reporting: bool = True
+    stop_at_strict: bool = False
     literature_cutoff: str = '2026-10-01'
 
     def __post_init__(self):

@@ -1,0 +1,126 @@
+{
+  "target": {
+    "Structure ID": "X404-1764-4001",
+    "SMILES": "Cn1c(C(=O)O)nnc1[C@H]1CCC[C@](O)(c2ccc(O)cc2)C1"
+  },
+  "first_phase": {
+    "stock_closed": true,
+    "strict_closed": true,
+    "first_cc": 1.8571428571428572
+  },
+  "final": {
+    "stock_closed": true,
+    "strict_closed": true,
+    "first_cc": 1.8571428571428572,
+    "routes": 20,
+    "stock_routes": 20,
+    "strict_routes": 20,
+    "all_routes_mean_cc": 1.8452380952380953,
+    "diversity": 0.4015031771347561,
+    "complete_yield_routes": 10,
+    "complete_yield_mean_pct": 14.505947929687498
+  },
+  "route": {
+    "target_smiles": "Cn1c(C(=O)O)nnc1[C@H]1CCC[C@](O)(c2ccc(O)cc2)C1",
+    "steps": [
+      {
+        "step_id": "R01",
+        "product": "Cn1c(C(=O)O)nnc1[C@H]1CCC[C@](O)(c2ccc(O)cc2)C1",
+        "reactants": [
+          "CCOC(=O)c1nnc([C@H]2CCC[C@](O)(c3ccc(O)cc3)C2)n1C"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R02",
+        "product": "CCOC(=O)c1nnc([C@H]2CCC[C@](O)(c3ccc(O)cc3)C2)n1C",
+        "reactants": [
+          "CCOC(=O)c1nnc([C@H]2CCC[C@](O)(c3ccc(OCc4ccccc4)cc3)C2)n1C"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R03",
+        "product": "CCOC(=O)c1nnc([C@H]2CCC[C@](O)(c3ccc(OCc4ccccc4)cc3)C2)n1C",
+        "reactants": [
+          "Brc1ccc(OCc2ccccc2)cc1",
+          "CCOC(=O)c1nnc([C@H]2CCCC(=O)C2)n1C"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R04",
+        "product": "Brc1ccc(OCc2ccccc2)cc1",
+        "reactants": [
+          "ClCc1ccccc1",
+          "Oc1ccc(Br)cc1"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R05",
+        "product": "CCOC(=O)c1nnc([C@H]2CCCC(=O)C2)n1C",
+        "reactants": [
+          "CCOC(=O)c1nnc([C@H]2CCCC(=O)C2)[nH]1",
+          "COS(=O)(=O)OC"
+        ],
+        "reaction_type": "Triazole N-methylation with isolation of the N4 regioisomer"
+      },
+      {
+        "step_id": "R06",
+        "product": "CCOC(=O)c1nnc([C@H]2CCCC(=O)C2)[nH]1",
+        "reactants": [
+          "CCOC(=O)c1nnc(C2=CC(=O)CCC2)[nH]1"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R07",
+        "product": "CCOC(=O)c1nnc(C2=CC(=O)CCC2)[nH]1",
+        "reactants": [
+          "CCOC(=O)c1nnc(Br)[nH]1",
+          "O=C1C=C(B(O)O)CCC1"
+        ],
+        "reaction_type": "Suzuki\u2013Miyaura coupling of the NH bromotriazole with the enone boronic acid"
+      }
+    ],
+    "target_id": "X404-1764-4001"
+  },
+  "step_scores": [
+    {
+      "step_id": "R01",
+      "cc": 2.0
+    },
+    {
+      "step_id": "R02",
+      "cc": 2.0
+    },
+    {
+      "step_id": "R03",
+      "cc": 1.0
+    },
+    {
+      "step_id": "R04",
+      "cc": 5.0
+    },
+    {
+      "step_id": "R05",
+      "cc": 1.0
+    },
+    {
+      "step_id": "R06",
+      "cc": 1.0
+    },
+    {
+      "step_id": "R07",
+      "cc": 1.0
+    }
+  ],
+  "stock_leaves": [
+    "CCOC(=O)c1nnc(Br)[nH]1",
+    "COS(=O)(=O)OC",
+    "ClCc1ccccc1",
+    "O=C1C=C(B(O)O)CCC1",
+    "Oc1ccc(Br)cc1"
+  ]
+}

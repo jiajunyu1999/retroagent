@@ -21,5 +21,6 @@
   "supply_alternatives": 4,
   "rule_work": 768,
   "yield_reporting": true,
+  "stop_at_strict": false,
   "literature_cutoff": "2026-10-01"
 }

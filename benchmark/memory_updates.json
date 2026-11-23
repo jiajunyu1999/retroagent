@@ -1,0 +1,255 @@
+[
+  {
+    "wave": 1,
+    "memory": {
+      "all": {
+        "attempts": 4,
+        "wins": 1,
+        "change_root": 1,
+        "failures": 3
+      },
+      "stock|1": {
+        "attempts": 1,
+        "wins": 1,
+        "change_root": 1
+      },
+      "stock|2+": {
+        "attempts": 3,
+        "failures": 3
+      }
+    }
+  },
+  {
+    "wave": 2,
+    "memory": {
+      "all": {
+        "attempts": 6,
+        "wins": 2,
+        "change_root": 2,
+        "failures": 4
+      },
+      "stock|1": {
+        "attempts": 2,
+        "wins": 2,
+        "change_root": 2
+      },
+      "stock|2+": {
+        "attempts": 4,
+        "failures": 4
+      }
+    }
+  },
+  {
+    "wave": 3,
+    "memory": {
+      "all": {
+        "attempts": 9,
+        "wins": 4,
+        "change_root": 4,
+        "failures": 5
+      },
+      "stock|1": {
+        "attempts": 5,
+        "wins": 4,
+        "change_root": 4,
+        "failures": 1
+      },
+      "stock|2+": {
+        "attempts": 4,
+        "failures": 4
+      }
+    }
+  },
+  {
+    "wave": 4,
+    "memory": {
+      "all": {
+        "attempts": 13,
+        "wins": 5,
+        "change_root": 5,
+        "failures": 8
+      },
+      "stock|1": {
+        "attempts": 6,
+        "wins": 4,
+        "change_root": 4,
+        "failures": 2
+      },
+      "stock|2+": {
+        "attempts": 5,
+        "failures": 5
+      },
+      "open|0": {
+        "attempts": 2,
+        "wins": 1,
+        "change_root": 1,
+        "failures": 1
+      }
+    }
+  },
+  {
+    "wave": 5,
+    "memory": {
+      "all": {
+        "attempts": 16,
+        "wins": 5,
+        "change_root": 5,
+        "failures": 11
+      },
+      "stock|1": {
+        "attempts": 8,
+        "wins": 4,
+        "change_root": 4,
+        "failures": 4
+      },
+      "stock|2+": {
+        "attempts": 5,
+        "failures": 5
+      },
+      "open|0": {
+        "attempts": 3,
+        "wins": 1,
+        "change_root": 1,
+        "failures": 2
+      }
+    }
+  },
+  {
+    "wave": 6,
+    "memory": {
+      "all": {
+        "attempts": 19,
+        "wins": 6,
+        "change_root": 6,
+        "failures": 13
+      },
+      "stock|1": {
+        "attempts": 11,
+        "wins": 5,
+        "change_root": 5,
+        "failures": 6
+      },
+      "stock|2+": {
+        "attempts": 5,
+        "failures": 5
+      },
+      "open|0": {
+        "attempts": 3,
+        "wins": 1,
+        "change_root": 1,
+        "failures": 2
+      }
+    }
+  },
+  {
+    "wave": 7,
+    "memory": {
+      "all": {
+        "attempts": 22,
+        "wins": 6,
+        "change_root": 6,
+        "failures": 16
+      },
+      "stock|1": {
+        "attempts": 12,
+        "wins": 5,
+        "change_root": 5,
+        "failures": 7
+      },
+      "stock|2+": {
+        "attempts": 5,
+        "failures": 5
+      },
+      "open|0": {
+        "attempts": 5,
+        "wins": 1,
+        "change_root": 1,
+        "failures": 4
+      }
+    }
+  },
+  {
+    "wave": 8,
+    "memory": {
+      "all": {
+        "attempts": 24,
+        "wins": 7,
+        "change_root": 7,
+        "failures": 17
+      },
+      "stock|1": {
+        "attempts": 13,
+        "wins": 6,
+        "change_root": 6,
+        "failures": 7
+      },
+      "stock|2+": {
+        "attempts": 5,
+        "failures": 5
+      },
+      "open|0": {
+        "attempts": 6,
+        "wins": 1,
+        "change_root": 1,
+        "failures": 5
+      }
+    }
+  },
+  {
+    "wave": 9,
+    "memory": {
+      "all": {
+        "attempts": 26,
+        "wins": 8,
+        "change_root": 8,
+        "failures": 18
+      },
+      "stock|1": {
+        "attempts": 15,
+        "wins": 7,
+        "change_root": 7,
+        "failures": 8
+      },
+      "stock|2+": {
+        "attempts": 5,
+        "failures": 5
+      },
+      "open|0": {
+        "attempts": 6,
+        "wins": 1,
+        "change_root": 1,
+        "failures": 5
+      }
+    }
+  },
+  {
+    "wave": 10,
+    "memory": {
+      "all": {
+        "attempts": 28,
+        "wins": 10,
+        "change_root": 9,
+        "failures": 18,
+        "replace_weak": 1
+      },
+      "stock|1": {
+        "attempts": 16,
+        "wins": 8,
+        "change_root": 8,
+        "failures": 8
+      },
+      "stock|2+": {
+        "attempts": 6,
+        "failures": 5,
+        "wins": 1,
+        "replace_weak": 1
+      },
+      "open|0": {
+        "attempts": 6,
+        "wins": 1,
+        "change_root": 1,
+        "failures": 5
+      }
+    }
+  }
+]

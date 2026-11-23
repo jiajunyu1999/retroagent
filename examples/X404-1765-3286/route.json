@@ -1,0 +1,138 @@
+{
+  "target": {
+    "Structure ID": "X404-1765-3286",
+    "SMILES": "CCNc1cc(-c2nccc(O)c2C)ccc1Cc1nc(C(=O)O)no1"
+  },
+  "first_phase": {
+    "stock_closed": true,
+    "strict_closed": false,
+    "first_cc": 1.7142857142857142
+  },
+  "final": {
+    "stock_closed": true,
+    "strict_closed": true,
+    "first_cc": 2.625,
+    "routes": 20,
+    "stock_routes": 20,
+    "strict_routes": 11,
+    "all_routes_mean_cc": 2.164880952380952,
+    "diversity": 0.3097679348873857,
+    "complete_yield_routes": 0,
+    "complete_yield_mean_pct": null
+  },
+  "route": {
+    "target_smiles": "CCNc1cc(-c2nccc(O)c2C)ccc1Cc1nc(C(=O)O)no1",
+    "steps": [
+      {
+        "step_id": "R01",
+        "product": "CCNc1cc(-c2nccc(O)c2C)ccc1Cc1nc(C(=O)O)no1",
+        "reactants": [
+          "CCNc1cc(-c2nccc(OC)c2C)ccc1Cc1nc(C(=O)OCC)no1"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R02",
+        "product": "CCNc1cc(-c2nccc(OC)c2C)ccc1Cc1nc(C(=O)OCC)no1",
+        "reactants": [
+          "CCNc1cc(-c2nccc(OC)c2C)ccc1CC(=O)O",
+          "CCOC(=O)C(=N)NO"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R03",
+        "product": "CCNc1cc(-c2nccc(OC)c2C)ccc1CC(=O)O",
+        "reactants": [
+          "CC=O",
+          "COC(=O)Cc1ccc(-c2nccc(OC)c2C)cc1N"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R04",
+        "product": "CC=O",
+        "reactants": [
+          "CC(=O)C(=O)[O-]"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R05",
+        "product": "CC(=O)C(=O)[O-]",
+        "reactants": [
+          "CC(=O)C(=O)O"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R06",
+        "product": "COC(=O)Cc1ccc(-c2nccc(OC)c2C)cc1N",
+        "reactants": [
+          "COC(=O)Cc1ccc(Br)cc1N",
+          "COc1ccnc(Br)c1C"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R07",
+        "product": "COC(=O)Cc1ccc(Br)cc1N",
+        "reactants": [
+          "CO",
+          "O=C1Cc2ccc(Br)cc2N1"
+        ],
+        "reaction_type": "Proposal"
+      },
+      {
+        "step_id": "R08",
+        "product": "CO",
+        "reactants": [
+          "COc1ccc(O)cc1"
+        ],
+        "reaction_type": "Proposal"
+      }
+    ],
+    "target_id": "X404-1765-3286"
+  },
+  "step_scores": [
+    {
+      "step_id": "R01",
+      "cc": 1.0
+    },
+    {
+      "step_id": "R02",
+      "cc": 1.0
+    },
+    {
+      "step_id": "R03",
+      "cc": 1.0
+    },
+    {
+      "step_id": "R04",
+      "cc": 5.0
+    },
+    {
+      "step_id": "R05",
+      "cc": 5.0
+    },
+    {
+      "step_id": "R06",
+      "cc": 2.0
+    },
+    {
+      "step_id": "R07",
+      "cc": 1.0
+    },
+    {
+      "step_id": "R08",
+      "cc": 5.0
+    }
+  ],
+  "stock_leaves": [
+    "CC(=O)C(=O)O",
+    "CCOC(=O)C(=N)NO",
+    "COc1ccc(O)cc1",
+    "COc1ccnc(Br)c1C",
+    "O=C1Cc2ccc(Br)cc2N1"
+  ]
+}

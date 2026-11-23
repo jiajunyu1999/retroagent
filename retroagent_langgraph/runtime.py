@@ -47,8 +47,12 @@ class Runtime:
         self.reason_was_strict=False
         self.rule_streams={};self.rule_pending={};self.rule_seen=set();self.rule_work=0
         self.rule_exhausted=set()
+        self.rule_min_native=24
         self.route_visits=Counter()
         self.salvaged_steps=0
+        self.provider_guide=None
+        self.provider_decisions=[]
+        self.provider_feedback=[]
 
     def quality(self):
         best=max(self.metrics.values(),key=rank,default=None)
@@ -86,9 +90,15 @@ class Runtime:
             self.graph.attempts[p,t]=dict(status='pending');admitted.append((p,t))
         if not admitted:return
         for p,t,rows,record in self.chem.predict(admitted):
+            capture=self.provider_guide is not None and p!=self.graph.root
+            if capture:before=len(self.graph.edges)
             if record['status']=='completed':
                 try:record.update(self.chem.prepare(self.graph,rows,p,'native:'+t))
                 except Exception as exc:record.update(status='failed',error=str(exc))
+            if capture and record['status']=='completed':
+                from itertools import islice
+                self.provider_feedback.append(dict(product=p,tool=t,
+                    admitted_new=list(islice(self.graph.edges,before,None))))
             self.graph.attempts[p,t]=record
             self.memory.observe_tool(p,t,record,self.graph,self.planner)
             if record['status']!='completed':self.errors.append(dict(tool=t,product=p,error=record.get('error')))
@@ -131,6 +141,22 @@ class Runtime:
             quality=self.quality(),costs=self.budget.report(),nodes=len(self.graph.nodes),cuts=len(self.graph.edges)))
         self.trace('remember',state);return dict(next='schedule')
 
+    def provider_options(self,product,available,limit=4):
+        if self.provider_guide is None:return []
+        history=[dict(tool=t,**r)for (p,t),r in self.graph.attempts.items()if p==product]
+        if not history:return []
+        return self.provider_guide.rank(product,available,previous=history,limit=limit)
+
+    def choose_provider(self,product,available,consume):
+        options=self.provider_options(product,available)
+        if options:
+            explore=self.rng.random()<.15
+            winner=self.rng.choice(available) if explore else options[0]['provider']
+            if consume:
+                self.provider_decisions.append(dict(product=product,selected=winner,explore=explore,rank=options))
+            return winner
+        return self.rng.choice(available)
+
     def tool_pairs(self,*,consume=True):
         limit=min(4,self.cfg.native_calls-self.budget.used['native_calls'])
         if limit<=0:return []
@@ -158,7 +184,7 @@ class Runtime:
                 goals=[r['task']['repair_anchor']for r in contracts]
             for p in goals:
                 if p in available and not any(q==p for q,_ in pairs):
-                    pairs.append((p,self.rng.choice(available[p]['tools'])))
+                    pairs.append((p,self.choose_provider(p,available[p]['tools'],consume)))
                 if len(pairs)>=min(1,limit):break
         candidates=self.guide.candidates(self)
         quality_mode=self.quality()['strict_closed']
@@ -178,7 +204,7 @@ class Runtime:
                     burden(p),-branch['opened'][p],p))
                 for p in goals:
                     if p not in available or any(q==p for q,_ in pairs):continue
-                    pairs.append((p,self.rng.choice(available[p]['tools'])));families[family]+=1
+                    pairs.append((p,self.choose_provider(p,available[p]['tools'],consume)));families[family]+=1
                     if consume:self.route_visits[family]+=1
                     if not quality_mode or families[family]>=family_limit or len(pairs)>=stop:break
         reached={self.graph.root}
@@ -193,10 +219,13 @@ class Runtime:
         for row in ordered:
             if len(pairs)>=limit:break
             if not any(p==row['product']for p,_ in pairs):
-                pairs.append((row['product'],self.rng.choice(row['tools'])))
+                pairs.append((row['product'],self.choose_provider(row['product'],row['tools'],consume)))
         return pairs
 
     def schedule(self,state):
+        if self.full.stop_at_strict and self.quality()['strict_closed']:
+            self.reason='strict_closed'
+            return dict(next='finish')
         if self.stock_target or self.budget.remaining_seconds<=0:
             self.reason='target_in_stock'if self.stock_target else 'wall_limit';return dict(next='finish')
         pairs=self.tool_pairs(consume=False);native=self.budget.used['native_calls'];used=self.budget.used['llm_calls']
@@ -301,7 +330,7 @@ class Runtime:
         return list(unique.items())[:3]
 
     def repair(self,state):
-        if self.budget.used['native_calls']<24 or self.rule_work>=self.full.rule_work:
+        if self.budget.used['native_calls']<self.rule_min_native or self.rule_work>=self.full.rule_work:
             return dict(next='combine')
         from .rules import core_proposals
         active=[]
@@ -356,6 +385,8 @@ class Runtime:
                 attempts={t:self.graph.attempts[p,t]['status']for t in PROVIDERS if(p,t)in self.graph.attempts},
                 actual_options=[dict(step=e['step'],cc=e['cc'],origins=e['origins'],
                     stock={r:self.graph.facts[r]['in_stock']for r in e['step']['reactants']})for e in edges]))
+            ranking=self.provider_options(p,options[-1]['unused_providers'])
+            if ranking:options[-1]['provider_memory']=ranking
             plans=self.planner.strict.plans.get(p,[])
             if plans and any(r['steps']for r in plans):
                 best=max(plans,key=lambda r:r['mean'])
@@ -465,7 +496,7 @@ class Runtime:
 
     def finish(self,state):
         self.cfg=self.full;self.budget.cfg=self.full;self.planner.cfg=self.full
-        if not self.stock_target:
+        if not self.stock_target and not (self.full.stop_at_strict and self.quality()['strict_closed']):
             for steps in self.planner.search(self.graph,self.budget,solve=True,final=True):self.evaluate(steps)
         if self.chem.yields:
             for metric in self.metrics.values():metric['yield_proxy']=self.chem.yields.route(metric['route'])
@@ -490,6 +521,9 @@ class Runtime:
             attempts=[dict(product=p,tool=t,**r)for(p,t),r in self.graph.attempts.items()]))
         atomic_json(self.out/'candidate_bank.json',list(self.metrics.values()))
         atomic_json(self.out/'working_memory.json',self.memory.snapshot())
+        if self.provider_guide is not None:
+            atomic_json(self.out/'provider_decisions.json',self.provider_decisions)
+            atomic_json(self.out/'provider_feedback.json',self.provider_feedback)
         self.evidence.save();self.result=result;atomic_json(self.out/'result.json',result)
         self.trace('finish',state);return dict(done=True,next='end')
 

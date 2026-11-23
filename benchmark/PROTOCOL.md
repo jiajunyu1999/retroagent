@@ -1,30 +1,24 @@
-# Sol Medium 原100题逆合成对照
+# Benchmark protocol and metric definitions
 
-目标是比较V9与五种已发表控制策略在同一环境中的表现。比较列使用「方法风格 / 共享环境适配」；论文原生系统的候选生成器、训练权重、评估器和预算会影响其原始成绩。
+## Methods and inputs
 
-| 对照列 | 保留的控制机制 | 适配差异 |
-|---|---|---|
-| V9 | 冻结的LangGraph V9和原两轮控制 | 墙钟保护上限7200秒，6题并发，最多18个在途LLM请求 |
-| ReTRACE风格 | LLM看路线记忆、候选反应与分项证据，决定续搜、改分支、回溯或提出备选路线 | 公开页面提供回放。使用本地化学工具和CC，取代原可行性、成本、绿色指标组合及论文Audit@k |
-| RetrOrchestrator风格 | Sol Medium同时选择中间体和单步模型，一次可排序多个动作，调用按单个分子与单个工具计账 | 论文依赖强化学习得到的策略。此处用统一Sol Medium的提示式路由和本地5个单步工具 |
-| LARC风格 | 单独的LLM约束评价计划及观察反应的分值，分值反馈到候选路线与缺口排序。LLM不造反应 | 原题只有统一库存和CC目标。以真实CC和库存证据作为评价条件，共享有界AND/OR搜索替代MEEA* |
-| RetroPlanner风格 | 一轮先选多个前沿分子，收集候选后由LLM共同排序，入选反应接入图 | 论文使用微调策略及独立的正向一致性和原料价格指标。这组以实测CC、库存缺口和结构进展作为统一环境提供的信号 |
-| DeepRetro风格 | 优先用模板模型展开。对仍无库存供应的中间体，LLM只补单步反应，后续递归展开 | 本地LocalRetro和共享下游验证替代上游整路线规划器，不使用人工改路线 |
+The comparison uses the same 100 target structures in `targets.json`. RetroAgent is the ten-batch outcome-memory run with an initially empty memory and the configuration in `config.json`. DeepRetro uses the author repository at commit `dc8fcad` with local GPT-6.1 Sol Medium execution transport. Specialized-model metrics are the 14 valid archived methods in `specialist_archive.csv` after its method-level execution-error rule. Four excluded specialist methods are omitted. Local adaptations of other agent methods are not included.
 
-五个适配版共用V9的化学查询、图、路线组合、结构和原子来源检查、真实CC、精确库存、终选与指标层。适配版不运行V9特有的化学规则补救和三角色推理；V9保留其被评测的完整算法。因此本实验比较的是这六套控制流程的整体效果，不能单独归因于某一个策略动作。
+DeepRetro completed 97 targets and had 3 execution errors. Every primary metric retains the 100-target denominator. Missing or invalid first routes contribute zero. Method-specific archived search protocols supply the recorded results.
 
-- 使用原 `data/test.csv` 中的相同100个结构，每个方法从空图和空记忆运行。所有100个目标禁止直接精确反应检索。LLM只见当前题，历史路线不作为推理输入。
-- 模型使用原隔离本地运行器，明确请求 `gpt-6.1-sol`、`medium`。运行器记录请求模型标识和实际调用结果。
-- 每题共享上限为96次垂类、18次LLM、64次精确反应检索、36次库存相似检索、4次反应近邻／文献查询、12,288单位搜索工作；两轮开放增量，预算不重置。报告实际用量。DeepRetro风格只使用一个模板工具，因此可用操作空间不同。
-- 固定精确库存和ChemCensor数据库，保持每一步CC>0且库存、来源、结构、6步深度及16步总数条件满足才算严格闭合。最多输出20条唯一候选。
-- 首选CC按100题平均，无输出计0。所有路线CC分别按题和按路线平均；多样性同一函数，各题等权；产率使用共享训练参考库的相同代理规则，条件产率只含证据完整路线。
-- 小样本连通性和控制路径测试使用缩小额度，独立保存，不进入正式汇总。正式运行共用同一常驻服务。V9保持6题并发，适配版提前用1个槽开始；V9结束后，适配版升至6题并发。各方法仍在同一适配版进程池交错入队，单题时长含运行当时的共享服务负载。
-- 所有方法及未完成、失败、审核异常均留记录。原100题参与过V9开发，外部泛化需要另测。
+## Metrics
 
-方法来源
+- **Inventory closure:** an audited candidate route with every leaf in the exact inventory.
+- **Strict closure:** inventory closure plus structural and source validity, permitted route depth and size, and ChemCensor `score_with_fg > 0` for every reaction.
+- **First-route CC:** mean step CC of the selected first route, averaged across all 100 targets. Missing or invalid first routes contribute zero.
+- **Diversity:** the archived per-target stock-closed route diversity, averaged equally across the 100 targets.
+- **Complete-yield routes:** total inventory-closed output routes for which every reaction has yield evidence under the archived relaxed USPTO/Reaxys matching rules.
+- **Yield proxy:** conditional mean route proxy across those completely covered inventory-closed routes. It is a reaction-analog proxy, not a measured synthesis yield. Uncovered routes are excluded from this conditional mean.
 
-- [ReTRACE论文](https://arxiv.org/html/2610.24744v1)和[官方项目页](https://jxtse.github.io/retrace/)
-- [RetrOrchestrator论文](https://proceedings.mlr.press/v306/chang26g.html)和[代码](https://github.com/ScottLiao920/verl-retro-agent)
-- [LARC论文](https://arxiv.org/html/2508.11860)和[代码](https://github.com/ninglab/LARC)
-- [RetroPlanner论文](https://arxiv.org/html/2610.16391v1)
-- [DeepRetro论文](https://www.nature.com/articles/s41598-026-38821-z)和[代码](https://github.com/deepforestsci/DeepRetro)
+A dash means the metric is unavailable from the DeepRetro export. See `figures/CAPTIONS.md` for panel-level definitions and `comparison.csv` for the plotted values.
+
+## Runtime limits and output
+
+RetroAgent shares 96 specialist calls, 18 LLM calls, 64 exact-reaction queries, 36 material queries, 4 support queries and 12,288 search-work units across two phases. The initial phase receives 48 model calls and 6,144 search work; continuation uses the same cumulative counters. Output is capped at 20 routes per target. `summary.json` records observed compute rather than substituting the caps.
+
+Cross-target memory stores strategy outcome counts. It updates after each batch of ten targets and changes only subsequent inference. Per-target route examples under `examples/` are exported results.

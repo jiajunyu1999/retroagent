@@ -4,6 +4,7 @@ import json
 from clean_harness.config import PROVIDERS
 from clean_harness.transport import Client
 from .routes import route_id
+from .skill_memory import advisory
 
 ROLES=(('supply','Complete the assigned supported branch within its EXACT remaining depth and step window. '
         'Prefer a concrete short anchored supply patch; give the best patch plus up to max_short_alternatives '
@@ -79,10 +80,17 @@ def brief(metric):
 def run(runtime,tasks,views=3):
     observation=runtime.observation(tasks)
     jobs=[]
-    roles=QUALITY_ROLES if runtime.quality()['strict_closed']else ROLES
+    strictly_closed=runtime.quality()['strict_closed']
+    roles=QUALITY_ROLES if strictly_closed else ROLES
+    instructions=INSTRUCTIONS
+    if runtime.memory.skill_cards and not strictly_closed:
+        cards=advisory(runtime.memory.skill_cards,runtime.metrics.values())
+        if cards:
+            observation['trajectory_lessons']=cards
+            instructions+='\nMeasured trajectory skill. Apply only the patterns in trajectory_lessons.\n'+runtime.memory.skill_text
     for role,task in zip(roles[:views],tasks):
         if not runtime.budget.take('llm_calls'):break
-        prompt=INSTRUCTIONS+'\n'+json.dumps(dict(target=runtime.target,phase=runtime.phase,role=role,
+        prompt=instructions+'\n'+json.dumps(dict(target=runtime.target,phase=runtime.phase,role=role,
             assigned_task=task,max_short_alternatives=runtime.full.supply_alternatives if role[0]=='supply'else 1,
             providers=PROVIDERS,observations=observation),ensure_ascii=False,separators=(',',':'))
         jobs.append((role[0],task,prompt))
