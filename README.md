@@ -8,11 +8,14 @@ RetroAgent takes a target SMILES and searches for a synthesis route whose starti
 
 ## Results
 
-On the same 100 targets, RetroAgent reaches **99% inventory closure**, **82% strict closure** and **2.7349 mean first-route CC**. The comparison contains DeepRetro from its author repository and 14 specialized-model baselines.
+On the same 100 targets, RetroAgent reaches **99% inventory closure**, **82% strict closure** and **2.7349 mean first-route CC**. The comparison includes pure LLM baselines (6.1 Sol and 6.2 Astra), the MCTS variant, DeepRetro from its author repository, and 14 specialized-model baselines.
 
 | Method | Inventory closure | Strict closure | First-route CC |
 | :--- | ---: | ---: | ---: |
 | **RetroAgent** | **99%** | **82%** | **2.7349** |
+| RetroAgent (MCTS) | 83% | 65% | 2.6096 |
+| Pure LLM (6.1 Sol) | 10% | 3% | 0.9857 |
+| Pure LLM (6.2 Astra) | 16% | 5% | 1.0199 |
 | DeepRetro | 57% | 16% | 0.8002 |
 | RetroChimera | 73% | 33% | 1.6107 |
 | GLN | 46% | 32% | 1.5349 |

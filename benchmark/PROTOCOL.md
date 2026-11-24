@@ -22,3 +22,11 @@ A dash means the metric is unavailable from the DeepRetro export. See `figures/C
 RetroAgent shares 96 specialist calls, 18 LLM calls, 64 exact-reaction queries, 36 material queries, 4 support queries and 12,288 search-work units across two phases. The initial phase receives 48 model calls and 6,144 search work; continuation uses the same cumulative counters. Output is capped at 20 routes per target. `summary.json` records observed compute rather than substituting the caps.
 
 Cross-target memory stores strategy outcome counts. It updates after each batch of ten targets and changes only subsequent inference. Per-target route examples under `examples/` are exported results.
+
+## Controller and direct-LLM comparison
+
+`controller_comparison.csv` and `controller_per_case.csv` add the MCTS substitution and saved direct-LLM outputs on the same 100 target structures.
+
+- **RetroAgent (MCTS):** UCT replaces the LLM decision node. All 100 cases pass the output and physical-call audit. Chemistry services, pinned CC, stock, retrieval limits, route limits and the total 96-model-call / 12,288-search-work caps are shared with RetroAgent. MCTS simulation states debit that search-work budget. There are no LLM calls or cross-target LLM repair-role updates.
+- **Pure LLM (6.1 Sol)** and **Pure LLM (6.2 Astra):** Codex generates one candidate route per target from model knowledge, with no chemistry tools, retrieval or stock/CC feedback during generation. Saved routes are evaluated using the common normalization, exact-stock pruning, structural/source checks, pinned CC and relaxed yield matching. Missing or rejected routes contribute zero to the all-100 CC. The updated post-evaluation supersedes the earlier direct-route summary.
+- Pure-LLM generation uses one call per target. Diversity is zero with at most one output route. Its recorded elapsed time is generation-only; other elapsed values cover their online inference runs. These modes have different LLM call counts and candidate-generation capabilities.
